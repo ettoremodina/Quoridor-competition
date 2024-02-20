@@ -35,7 +35,7 @@ void Board::placeWall() {
 }
 
 
-void Board::wallsInit() {
+void Board::wallsInit() { /// you can't place walls on the perimeter
     for(size_t i = 0;i<dim;i++){
         walls[dim-1][i].h=false;
         walls[dim-1][i].v=false;
@@ -48,7 +48,7 @@ void Board::wallsInit() {
 bool Board::wallFree(Position &pos, std::string direction) {
     if(direction=="h")
         return walls[pos.getX()][pos.getY()].h;
-    if (direction=="v")
+    //if (direction=="v")
         return walls[pos.getX()][pos.getY()].v;
 }
 

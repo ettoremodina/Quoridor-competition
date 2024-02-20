@@ -12,7 +12,7 @@ class Tile {
 private:
     unsigned occupancy=0; //0 if free, 1 if player 1, 2 if player 2
     int u,d,l,r;  // basterebbe un bool: 0 se occupato da un muro o sul bordo, 1 se libero
-    int dim=5;
+    int dim=5; // serve per vedere se la tile è sul bordo, non so se ci sia un modo per ometterlo
 public:
     explicit Tile(const Position &pos );
 
