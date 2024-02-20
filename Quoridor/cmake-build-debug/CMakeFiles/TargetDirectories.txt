@@ -1,0 +1,3 @@
+C:/Users/modin/Desktop/Ettore/programming/Quoridor/cmake-build-debug/CMakeFiles/Quoridor.dir
+C:/Users/modin/Desktop/Ettore/programming/Quoridor/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/modin/Desktop/Ettore/programming/Quoridor/cmake-build-debug/CMakeFiles/rebuild_cache.dir
