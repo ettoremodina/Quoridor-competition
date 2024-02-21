@@ -1,0 +1,3 @@
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug/CMakeFiles/edit_cache.dir
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug/CMakeFiles/Quoridor.dir

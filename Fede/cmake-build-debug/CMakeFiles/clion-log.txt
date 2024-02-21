@@ -1,0 +1,18 @@
+C:\WINDOWS\system32\wsl.exe --distribution Ubuntu --exec /bin/bash -c "export CMAKE_COLOR_DIAGNOSTICS=ON && export CLION_IDE=TRUE && export JETBRAINS_IDE=TRUE && cd '/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug' && /usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G 'CodeBlocks - Unix Makefiles' -S '/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede' -B '/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug'"
+-- The C compiler identification is GNU 9.4.0
+-- The CXX compiler identification is GNU 9.4.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Quoridor"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Quoridor">
+				<Option output="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug/Quoridor" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 Quoridor"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Quoridor/fast">
+				<Option output="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug/Quoridor" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 Quoridor/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/feder/Desktop/Uni\ magistrale/Advanced\ programming\ for\ scientific\ computing/Quoridor-competition/Fede/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.h">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board_graph_algo.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board_helper_functions.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board_move.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Player.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Player.h">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.h">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Tile.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Tile.h">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/main.cpp">
+			<Option target="Quoridor"/>
+		</Unit>
+		<Unit filename="/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

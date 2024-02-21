@@ -1,0 +1,86 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.cpp
+Board.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.h
+iostream
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/iostream
+cctype
+-
+map
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/map
+vector
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/vector
+queue
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/queue
+set
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/set
+unordered_set
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/unordered_set
+string
+-
+list
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/list
+Position.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.h
+Tile.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Tile.h
+Player.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Player.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board_graph_algo.cpp
+Board.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board_helper_functions.cpp
+Board.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board_move.cpp
+Board.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Player.cpp
+Player.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Player.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Player.h
+Position.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.cpp
+Position.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.h
+iostream
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/iostream
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Tile.cpp
+Tile.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Tile.h
+Position.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Tile.h
+Position.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Position.h
+
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/main.cpp
+iostream
+-
+vector
+-
+string
+-
+Board.h
+/mnt/c/Users/feder/Desktop/Uni magistrale/Advanced programming for scientific computing/Quoridor-competition/Fede/Board.h
+
