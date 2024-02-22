@@ -1,7 +1,10 @@
 module Quoridor
 # chat gpt created
 
-export play
+using UnicodePlots
+
+export Game, print_board, move_pawn, place_wall, switch_player, calculate_distance_matrix, print_distance_matrix, play # for testing everything
+# export play # real one
 
 const EMPTY, PAWN, WALL = 0, 1, 2
 const DIRECTIONS = Dict('w' => (-1, 0), 's' => (1, 0), 'a' => (0, -1), 'd' => (0, 1))
@@ -12,6 +15,7 @@ mutable struct Player
     row::Int
     col::Int
     walls::Int
+    name::String
 end
 
 mutable struct Game
@@ -21,9 +25,15 @@ mutable struct Game
 end
 
 function Game()
+    print("Player 1 name: ")
+    name1 = readline()
+    print("Player 2 name: ")
+    name2 = readline()
+    println()
+
     board = fill(EMPTY, BOARD_SIZE, BOARD_SIZE)
-    players = [Player(BOARD_SIZE, ceil(Int, BOARD_SIZE / 2), MAX_WALLS),
-               Player(1, ceil(Int, BOARD_SIZE / 2), MAX_WALLS)]
+    players = [Player(BOARD_SIZE, ceil(Int, BOARD_SIZE / 2), MAX_WALLS,name1),
+               Player(1, ceil(Int, BOARD_SIZE / 2), MAX_WALLS,name2)]
     return Game(board, players, 1)
 end
 
@@ -53,13 +63,27 @@ function print_board(game::Game)
                 print(". ")
             end
         end
-        println("│")
+
+        if row == BOARD_SIZE-1
+            println("│ Player 1 ($(game.players[1].name)) Walls: ", game.players[1].walls)
+        elseif row == BOARD_SIZE
+            println("│ Player 2 ($(game.players[2].name)) Walls: ", game.players[2].walls)
+        else
+            println("│")
+        end
+
     end
     println(" "^PAD,"└","──"^BOARD_SIZE,"┘")
-    println("Player 1 Walls: ", game.players[1].walls, " Player 2 Walls: ", game.players[2].walls)
+    # println("Player 1 ($(game.players[1].name)) Walls: ", game.players[1].walls, " Player 2 ($(game.players[2].name)) Walls: ", game.players[2].walls)
 end
 
 function move_pawn(game::Game, direction::Char)
+    # @show direction
+    if !(direction in keys(DIRECTIONS))
+        @info "Provide a valid direction."
+        return 0
+    end
+
     dr, dc = DIRECTIONS[direction]
     player = game.players[game.current_player]
     new_row, new_col = player.row + dr, player.col + dc
@@ -72,6 +96,9 @@ function move_pawn(game::Game, direction::Char)
             @info "Can't move there! there is a wall. Select a valid move."
             return 0
         end
+    else
+        @info "Can't move outside the board. Select a valid move."
+        return 0
     end
 end
 
@@ -85,6 +112,8 @@ function place_wall(game::Game, row::Int, col::Int)
             @info "Wrong coordinates. Select a valid move."
             return 0
         end
+    else
+        @info "Walls finished. Select a valid move."
     end
 end
 
@@ -92,12 +121,59 @@ function switch_player(game::Game)
     game.current_player = 3 - game.current_player
 end
 
+
+function calculate_distance_matrix(game::Game, player_num::Int)
+    player = game.players[player_num]
+    player_pos = (player.row, player.col)
+    
+    distance = fill(-1, BOARD_SIZE, BOARD_SIZE)
+    visited = falses(BOARD_SIZE, BOARD_SIZE)
+    
+    queue = [(player_pos, 0)]
+    visited[player_pos...] = true
+    distance[player_pos...] = 0
+    
+    while !isempty(queue)
+        (current_row, current_col), dist = popfirst!(queue)
+        neighbors = [(current_row + dr, current_col + dc) for (dr, dc) in values(DIRECTIONS)]
+        
+        for (next_row, next_col) in neighbors
+            if next_row in 1:BOARD_SIZE && next_col in 1:BOARD_SIZE && !visited[next_row, next_col] && game.board[next_row, next_col] != WALL
+                push!(queue, ((next_row, next_col), dist + 1))
+                visited[next_row, next_col] = true
+                distance[next_row, next_col] = dist + 1
+            end
+        end
+    end
+    return distance
+end
+
+function print_distance_matrix(distance::Array{Int,2})
+    for row in 1:BOARD_SIZE
+        for col in 1:BOARD_SIZE
+            print(rpad(distance[row, col], 3))
+        end
+        println()
+    end
+end
+
 function play()
     game = Game()
-    while true
+    gioca=1
+    while gioca==1
         println("Current board:")
         print_board(game)
-        println("Player ", game.current_player, "'s turn. Move (w/a/s/d) or place wall (e.g., 'wall 5 5'):")
+        printstyled("Player ", game.current_player, " ($(game.players[game.current_player].name))";bold=true)
+        println("'s turn. Move (w/a/s/d) or place wall (e.g., 'wall x y'):")
+
+        distance_matrix = calculate_distance_matrix(game, game.current_player)
+
+        if isdefined(Quoridor, :UnicodePlots)
+            println(heatmap(distance_matrix,array=true,colormap=:devon,
+                zlabel="Pl$(game.current_player) ($(game.players[game.current_player].name))"))
+        else
+            print_distance_matrix(distance_matrix)
+        end
 
         moved = 0
         while moved==0
@@ -105,12 +181,37 @@ function play()
             if occursin("wall", input)
                 args = split(input)
                 # @show args
-                row, col = parse(Int, args[2]), parse(Int, args[3])
-                moved = place_wall(game, row, col)
+                try    
+                    row, col = parse(Int, args[2]), parse(Int, args[3])
+                    moved = place_wall(game, row, col)
+                catch e
+                    @info "Something went wrong. Select a valid morve."
+                end
+            elseif input=="quit" || input=="q"
+                moved=1
+                gioca=0
+                println("Ending the game.")
             else
-                moved = move_pawn(game, input[1])
+                try    
+                    moved = move_pawn(game, input[1])
+                catch e
+                    @info "Something went wrong. Select a valid morve."
+                end
+                
             end
         end
+
+        if game.current_player==1 && game.players[1].row == 1
+            println("Player 1 wins!")
+            print_board(game)
+            break
+        elseif game.current_player==2 && game.players[2].row == BOARD_SIZE
+            println("Player 2 wins!")
+            print_board(game)
+            break
+        end
+
+
         switch_player(game)
 
         # Add winning condition check here
