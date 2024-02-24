@@ -3,8 +3,8 @@ module Quoridor
 
 using UnicodePlots
 
-export Game, print_board, move_pawn, place_wall, switch_player, calculate_distance_matrix, print_distance_matrix, play # for testing everything
-# export play # real one
+# export Game, print_board, move_pawn, place_wall, switch_player, calculate_distance_matrix, print_distance_matrix, play # for testing everything
+export play # real one
 
 const EMPTY, PAWN, WALL = 0, 1, 2
 const DIRECTIONS = Dict('w' => (-1, 0), 's' => (1, 0), 'a' => (0, -1), 'd' => (0, 1))
@@ -84,64 +84,72 @@ function print_board(game::Game)
     # println("Player 1 ($(game.players[1].name)) Walls: ", game.players[1].walls, " Player 2 ($(game.players[2].name)) Walls: ", game.players[2].walls)
 end
 
-function move_pawn(game::Game, direction::Char)
-    # @show direction
+function is_valid_dir(game::Game, direction::Char)
     if !(direction in keys(DIRECTIONS))
         @info "Provide a valid direction."
-        return 0
+        return false
     end
+    dr, dc = DIRECTIONS[direction]
+    player = game.players[game.current_player]
+    new_row, new_col = player.row + dr, player.col + dc
+    if new_row >= 1 && new_row <= BOARD_SIZE && new_col >= 1 && new_col <= BOARD_SIZE
+        if game.board[new_row, new_col] == EMPTY
+            return true
+        else
+            @info "Can't move there! there is a wall. Select a valid move."
+            return false
+        end
+    else
+        @info "Can't move outside the board. Select a valid move."
+        return false
+    end
+    return false
+end
 
+function move_pawn(game::Game, direction::Char)
     dr, dc = DIRECTIONS[direction]
     player = game.players[game.current_player]
     new_row, new_col = player.row + dr, player.col + dc
 
-    if new_row >= 1 && new_row <= BOARD_SIZE && new_col >= 1 && new_col <= BOARD_SIZE
-        if game.board[new_row, new_col] == EMPTY
-            player.row, player.col = new_row, new_col
-            return 1
-        else
-            @info "Can't move there! there is a wall. Select a valid move."
-            return 0
-        end
-    else
-        @info "Can't move outside the board. Select a valid move."
-        return 0
-    end
+    player.row, player.col = new_row, new_col
 end
 
-function place_wall(game::Game, row::Int, col::Int)
+function is_valid_wall(game::Game, row::Int, col::Int)
     if game.players[game.current_player].walls > 0
         if row >= 1 && row <= BOARD_SIZE && col >= 1 && col <= BOARD_SIZE && 
             game.board[row, col] == EMPTY &&
             !((game.players[1].row == row) && (game.players[1].col == col)) &&
             !((game.players[2].row == row) && (game.players[2].col == col))
     
-            game.board[row, col] = WALL
             updated_board_pl1 = calculate_distance_matrix(game, 1)
             updated_board_pl2 = calculate_distance_matrix(game, 2)
 
             # pointwise comparison .==
             if all(updated_board_pl1[1,:] .== -1) || all(updated_board_pl2[BOARD_SIZE,:] .== -1)
                 @info "Can't place a wall there. Would block the path for someone."
-                game.board[row, col] = 0
-                return 0
+                return false
             else
-                game.players[game.current_player].walls -= 1
-                return 1
+                return true
             end
         else
             @info "Wrong coordinates. Select a valid move."
-            return 0
+            return false
         end
     else
         @info "Walls finished. Select a valid move."
+        return false
     end
 end
+
+function place_wall(game::Game, row::Int, col::Int)
+    game.players[game.current_player].walls -= 1
+    game.board[row, col] = WALL
+end
+
 
 function switch_player(game::Game)
     game.current_player = 3 - game.current_player
 end
-
 
 function calculate_distance_matrix(game::Game, player_num::Int)
     player = game.players[player_num]
@@ -180,11 +188,15 @@ end
 
 function validate_move(game,input)
     moved = 0
+    gioca = 1
     if occursin("wall", input)
         args = split(input)
-        try    
+        try
             row, col = parse(Int, args[2]), parse(Int, args[3])
-            moved = place_wall(game, row, col)
+            if is_valid_wall(game,row,col)==1
+                place_wall(game, row, col)
+                moved = 1
+            end
         catch e
             @error e
             @info "Something went wrong in placing the wall. Select a valid move."
@@ -196,7 +208,10 @@ function validate_move(game,input)
     else
         try
             if any(input .== ["w", "a", "s", "d"])
-                moved = move_pawn(game, input[1])
+                if is_valid_dir(game,input[1])==1
+                    move_pawn(game,input[1])
+                    moved=1
+                end
             else
                 @info "Incorrect or ambiguous direction." 
                 moved = 0
@@ -206,7 +221,7 @@ function validate_move(game,input)
             @info "Something went wrong in moving. Select a valid move."
         end
     end
-    return moved
+    return (gioca, moved)
 end
 
 function ask_user_move(game::Game)
@@ -224,24 +239,29 @@ function rand_ai(game::Game)
     return string(rand(keys(DIRECTIONS)))
 end
 
-function smart_ai(game::Game, iter)
+function smart_ai(game::Game)
     distance_matrix = calculate_distance_matrix(game, game.current_player)
     if game.current_player==1 
         target_row = 1
-    else
-        target_row = BOARD_SIZE 
+
+        cur_pos = [game.players[game.current_player].row,game.players[game.current_player].col]
+        target_pos = [target_row,argmin(replace(distance_matrix[target_row,:],-1=>+Inf64))]
+
+        cur_pos[2]==target_pos[2] && is_valid_dir(game,'w') && return "w"
+        cur_pos[2]< target_pos[2] && is_valid_dir(game,'d') && return "d"
+        cur_pos[2]>=target_pos[2] && is_valid_dir(game,'a') && return "a"
+        return "s"
+    else 
+        target_row = BOARD_SIZE
+
+        cur_pos = [game.players[game.current_player].row,game.players[game.current_player].col]
+        target_pos = [target_row,argmin(replace(distance_matrix[target_row,:],-1=>+Inf64))]
+
+        cur_pos[2]==target_pos[2] && is_valid_dir(game,'s') && return "s"
+        cur_pos[2]< target_pos[2] && is_valid_dir(game,'d') && return "d"
+        cur_pos[2]>=target_pos[2] && is_valid_dir(game,'a') && return "a"
+        return "w"
     end
-    cur_pos = [game.players[game.current_player].row,game.players[game.current_player].col]
-    target_pos = [target_row,argmin(replace(distance_matrix[target_row,:],-1=>+Inf64))]
-
-    @show cur_pos
-    @show target_pos
-    @show iter
-
-    if cur_pos[2]==target_pos[2] return game.current_player==1 ? "w" : "s" end
-    if cur_pos[2]< target_pos[2] return "d" end
-    if cur_pos[2]>=target_pos[2] return "a" end
-    if iter>=3 return game.current_player==1 ? "s" : "w" end
 end
 ##################
 ##   end AIs    ######################################################
@@ -275,10 +295,10 @@ function play()
                 input = ask_user_move(game) 
             else 
                 # input = rand_ai(game)
-                input = smart_ai(game,iter)
+                input = smart_ai(game)
             end
             iter+=1
-            moved = validate_move(game,input)
+            (gioca, moved) = validate_move(game,input)
             if moved==1 println("Player $(game.current_player) played $input.\n") end
         end
 
