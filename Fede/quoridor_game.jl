@@ -8,8 +8,12 @@ export Game, print_board, move_pawn, place_wall, switch_player, calculate_distan
 
 const EMPTY, PAWN, WALL = 0, 1, 2
 const DIRECTIONS = Dict('w' => (-1, 0), 's' => (1, 0), 'a' => (0, -1), 'd' => (0, 1))
-const BOARD_SIZE = 4
 const MAX_WALLS = 10
+
+print("Board size: ")
+const BOARD_SIZE = parse(Int64,readline())
+# const BOARD_SIZE = 9
+
 
 mutable struct Player
     row::Int
@@ -117,7 +121,7 @@ function place_wall(game::Game, row::Int, col::Int)
             updated_board_pl2 = calculate_distance_matrix(game, 2)
 
             # pointwise comparison .==
-            if any(updated_board_pl1[1,:] .== -1) || any(updated_board_pl1[BOARD_SIZE,:] .== -1)
+            if all(updated_board_pl1[1,:] .== -1) || all(updated_board_pl2[BOARD_SIZE,:] .== -1)
                 @info "Can't place a wall there. Would block the path for someone."
                 game.board[row, col] = 0
                 return 0
@@ -174,6 +178,76 @@ function print_distance_matrix(distance::Array{Int,2})
     end
 end
 
+function validate_move(game,input)
+    moved = 0
+    if occursin("wall", input)
+        args = split(input)
+        try    
+            row, col = parse(Int, args[2]), parse(Int, args[3])
+            moved = place_wall(game, row, col)
+        catch e
+            @error e
+            @info "Something went wrong in placing the wall. Select a valid move."
+        end
+    elseif input=="quit" || input=="q"
+        moved=1
+        gioca=0
+        println("Ending the game.")
+    else
+        try
+            if any(input .== ["w", "a", "s", "d"])
+                moved = move_pawn(game, input[1])
+            else
+                @info "Incorrect or ambiguous direction." 
+                moved = 0
+            end
+        catch e
+            @error e
+            @info "Something went wrong in moving. Select a valid move."
+        end
+    end
+    return moved
+end
+
+function ask_user_move(game::Game)
+    moved = 0
+    printstyled("Pl", game.current_player, " ($(game.players[game.current_player].name))'s turn: ";bold=true)
+    input = readline()
+    return input
+end
+
+
+##############
+##   AIs    ######################################################
+##############
+function rand_ai(game::Game)
+    return string(rand(keys(DIRECTIONS)))
+end
+
+function smart_ai(game::Game, iter)
+    distance_matrix = calculate_distance_matrix(game, game.current_player)
+    if game.current_player==1 
+        target_row = 1
+    else
+        target_row = BOARD_SIZE 
+    end
+    cur_pos = [game.players[game.current_player].row,game.players[game.current_player].col]
+    target_pos = [target_row,argmin(replace(distance_matrix[target_row,:],-1=>+Inf64))]
+
+    @show cur_pos
+    @show target_pos
+    @show iter
+
+    if cur_pos[2]==target_pos[2] return game.current_player==1 ? "w" : "s" end
+    if cur_pos[2]< target_pos[2] return "d" end
+    if cur_pos[2]>=target_pos[2] return "a" end
+    if iter>=3 return game.current_player==1 ? "s" : "w" end
+end
+##################
+##   end AIs    ######################################################
+##################
+
+
 function play()
     game = Game()
     gioca=1
@@ -195,48 +269,28 @@ function play()
         # end
 
         moved = 0
-        while moved==0
-            printstyled("Pl", game.current_player, " ($(game.players[game.current_player].name))'s turn: ";bold=true)
-            input = readline()
-            if occursin("wall", input)
-                args = split(input)
-                try    
-                    row, col = parse(Int, args[2]), parse(Int, args[3])
-                    moved = place_wall(game, row, col)
-                catch e
-                    @error e
-                    @info "Something went wrong in placing the wall. Select a valid move."
-                end
-            elseif input=="quit" || input=="q"
-                moved=1
-                gioca=0
-                println("Ending the game.")
-            else
-                try
-                    if any(input .== ["w", "a", "s", "d"])
-                        moved = move_pawn(game, input[1])
-                    else
-                        @info "Incorrect or ambiguous direction." 
-                        moved = 0
-                    end
-                catch e
-                    @error e
-                    @info "Something went wrong in moving. Select a valid move."
-                end
-                
+        iter = 0
+        while moved==0 && iter<100
+            if game.current_player==1 
+                input = ask_user_move(game) 
+            else 
+                # input = rand_ai(game)
+                input = smart_ai(game,iter)
             end
+            iter+=1
+            moved = validate_move(game,input)
+            if moved==1 println("Player $(game.current_player) played $input.\n") end
         end
 
         if game.current_player==1 && game.players[1].row == 1
-            println("Player 1 wins!")
+            printstyled("\nPlayer 1 wins!\n", blink=true, bold=true)
             print_board(game)
             break
         elseif game.current_player==2 && game.players[2].row == BOARD_SIZE
-            println("Player 2 wins!")
+            printstyled("\nPlayer 2 wins!\n", blink=true, bold=true)
             print_board(game)
             break
         end
-
 
         switch_player(game)
 
