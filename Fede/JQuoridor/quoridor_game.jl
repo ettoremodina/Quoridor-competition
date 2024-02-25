@@ -29,12 +29,13 @@ mutable struct Game
     current_player::Int
 end
 
-global choice_game,choice_ai,choice_ai1,choice_ai2
-
 function Game()
 
     choice_game = request("Choose game",
-        RadioMenu(["2 vs 2","1 vs AI","AI vs AI"], pagesize=4));
+        RadioMenu(["1 vs 1","1 vs AI","AI vs 1","AI vs AI"], pagesize=4));
+    global choice_game
+
+    ais = ["rand AI", "smart AI"]
 
     if choice_game==1 
         print("Player 1 name: ")
@@ -46,17 +47,26 @@ function Game()
     elseif choice_game==2
         print("Player 1 name: ")
         name1 = readline()
-        ais = ["rand AI", "smart AI"]
         choice_ai = request("Choose opponent AI", RadioMenu(ais, pagesize=4));
+        global choice_ai
         name2 = ais[choice_ai]
         println()
 
     elseif choice_game==3
-        ais = ["rand AI", "smart AI"]
+        choice_ai = request("Choose opponent AI", RadioMenu(ais, pagesize=4));
+        global choice_ai
+        name1 = ais[choice_ai]
+        print("Player 2 name: ")
+        name2 = readline()
+        println()
+
+    elseif choice_game==4
         choice_ai1 = request("Choose opponent AI", RadioMenu(ais, pagesize=4));
+        global choice_ai1
         name1 = ais[choice_ai1]
         choice_ai2 = request("Choose opponent AI", RadioMenu(ais, pagesize=4));
-        name2 = ais[choice_ai]
+        global choice_ai2
+        name2 = ais[choice_ai2]
         println()
     end
 
@@ -294,6 +304,7 @@ end
 ##   end AIs    ######################################################
 ##################
 
+ais_functions = [rand_ai,smart_ai]
 
 function play()
     game = Game()
@@ -311,19 +322,23 @@ function play()
         if isdefined(Quoridor, :UnicodePlots)
             println(heatmap(distance_matrix,array=true,colormap=:devon,
                 zlabel="Pl$(game.current_player) ($(game.players[game.current_player].name))"))
-        # else
-            # print_distance_matrix(distance_matrix)
+        else
+            print_distance_matrix(distance_matrix)
         end
-        print_distance_matrix(distance_matrix)
 
         moved = 0
         iter = 0
         while moved==0 && iter<100
+            if choice_game==1 functions = [ask_user_move,ask_user_move] end
+            if choice_game==2 functions = [ask_user_move,ais_functions[choice_ai]] end
+            if choice_game==3 functions = [ais_functions[choice_ai],ask_user_move] end
+            if choice_game==4 functions = [ais_functions[choice_ai1],ais_functions[choice_ai2]] end
+
             if game.current_player==1 
-                input = ask_user_move(game) 
+                input = functions[1](game) 
             else 
                 # input = rand_ai(game)
-                input = smart_ai(game)
+                input = functions[2](game)
             end
             iter+=1
             (gioca, moved) = validate_move(game,input)
