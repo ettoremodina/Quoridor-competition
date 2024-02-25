@@ -2,6 +2,7 @@ module Quoridor
 # chat gpt created
 
 using UnicodePlots
+using TerminalMenus
 
 # export Game, print_board, move_pawn, place_wall, switch_player, calculate_distance_matrix, print_distance_matrix, play # for testing everything
 export play # real one
@@ -28,12 +29,36 @@ mutable struct Game
     current_player::Int
 end
 
+global choice_game,choice_ai,choice_ai1,choice_ai2
+
 function Game()
-    print("Player 1 name: ")
-    name1 = readline()
-    print("Player 2 name: ")
-    name2 = readline()
-    println()
+
+    choice_game = request("Choose game",
+        RadioMenu(["2 vs 2","1 vs AI","AI vs AI"], pagesize=4));
+
+    if choice_game==1 
+        print("Player 1 name: ")
+        name1 = readline()
+        print("Player 2 name: ")
+        name2 = readline()
+        println()
+
+    elseif choice_game==2
+        print("Player 1 name: ")
+        name1 = readline()
+        ais = ["rand AI", "smart AI"]
+        choice_ai = request("Choose opponent AI", RadioMenu(ais, pagesize=4));
+        name2 = ais[choice_ai]
+        println()
+
+    elseif choice_game==3
+        ais = ["rand AI", "smart AI"]
+        choice_ai1 = request("Choose opponent AI", RadioMenu(ais, pagesize=4));
+        name1 = ais[choice_ai1]
+        choice_ai2 = request("Choose opponent AI", RadioMenu(ais, pagesize=4));
+        name2 = ais[choice_ai]
+        println()
+    end
 
     board = fill(EMPTY, BOARD_SIZE, BOARD_SIZE)
     # board[BOARD_SIZE, ceil(Int, BOARD_SIZE / 2)] = 1
