@@ -121,8 +121,10 @@ function is_valid_wall(game::Game, row::Int, col::Int)
             !((game.players[1].row == row) && (game.players[1].col == col)) &&
             !((game.players[2].row == row) && (game.players[2].col == col))
     
+            game.board[row, col] = WALL
             updated_board_pl1 = calculate_distance_matrix(game, 1)
             updated_board_pl2 = calculate_distance_matrix(game, 2)
+            game.board[row, col] = EMPTY
 
             # pointwise comparison .==
             if all(updated_board_pl1[1,:] .== -1) || all(updated_board_pl2[BOARD_SIZE,:] .== -1)
@@ -281,12 +283,13 @@ function play()
 
         distance_matrix = calculate_distance_matrix(game, game.current_player)
 
-        # if isdefined(Quoridor, :UnicodePlots)
+        if isdefined(Quoridor, :UnicodePlots)
             println(heatmap(distance_matrix,array=true,colormap=:devon,
                 zlabel="Pl$(game.current_player) ($(game.players[game.current_player].name))"))
         # else
-            print_distance_matrix(distance_matrix)
-        # end
+            # print_distance_matrix(distance_matrix)
+        end
+        print_distance_matrix(distance_matrix)
 
         moved = 0
         iter = 0
