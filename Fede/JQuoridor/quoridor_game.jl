@@ -1,19 +1,21 @@
 module Quoridor
-# chat gpt created
 
 using UnicodePlots
 using TerminalMenus
 
-# export Game, print_board, move_pawn, place_wall, switch_player, calculate_distance_matrix, print_distance_matrix, play # for testing everything
-export play # real one
+export Game, print_board, move_pawn, place_wall, switch_player, calculate_distance_matrix, print_distance_matrix, play # for testing everything
+# export play # real one
 
-const EMPTY, PAWN, WALL = 0, 1, 2
+const EMPTY, WALL = 0, 2
+wall_char = "██" #'▇' '█'
+
 const DIRECTIONS = Dict('w' => (-1, 0), 's' => (1, 0), 'a' => (0, -1), 'd' => (0, 1))
 const MAX_WALLS = 10
 
 print("Board size: ")
 const BOARD_SIZE = parse(Int64,readline())
 # const BOARD_SIZE = 9
+const ACTUAL_BOARD_SIZE = BOARD_SIZE*2-1
 
 
 mutable struct Player
@@ -21,6 +23,12 @@ mutable struct Player
     col::Int
     walls::Int
     name::String
+end
+
+mutable struct Wall
+    row::Int
+    col::Int
+    dir::Char
 end
 
 mutable struct Game
@@ -70,11 +78,14 @@ function Game()
         println()
     end
 
-    board = fill(EMPTY, BOARD_SIZE, BOARD_SIZE)
-    # board[BOARD_SIZE, ceil(Int, BOARD_SIZE / 2)] = 1
-    # board[1, ceil(Int, BOARD_SIZE / 2)] = 2
-    players = [Player(BOARD_SIZE, ceil(Int, BOARD_SIZE / 2), MAX_WALLS,name1),
-               Player(1, ceil(Int, BOARD_SIZE / 2), MAX_WALLS,name2)]
+    board = fill(EMPTY, BOARD_SIZE*2-1, BOARD_SIZE*2-1)
+    pl1_col = BOARD_SIZE%2==0 ? BOARD_SIZE+1 : BOARD_SIZE
+    pl2_col = BOARD_SIZE%2==0 ? BOARD_SIZE-1 : BOARD_SIZE
+
+    # board[ACTUAL_BOARD_SIZE, pl1_col] = PAWN
+    # board[1, pl2_col] = PAWN
+    players = [Player(ACTUAL_BOARD_SIZE, pl1_col, MAX_WALLS,name1),
+               Player(1, pl2_col, MAX_WALLS,name2)]
     return Game(board, players, 1)
 end
 
@@ -82,40 +93,51 @@ end
 function print_board(game::Game)
     PAD = 2
     print(" "^(PAD+1))
-    for col in 1:BOARD_SIZE
-        print("$(col%10==0 ? " " : col%10) ")
+    for col in 1:size(game.board)[1]
+        if col%2==0
+            print(rpad(div(col,2)%10,PAD))
+        else
+            print("  ")
+        end
     end
-    print("\n  ┌")
-    print("──"^(BOARD_SIZE),"┐")
+    print("\n"," "^PAD,"┌")
+    print("─"^(PAD*size(game.board)[1]),"┐")
     print("\n")
-    for row in 1:BOARD_SIZE
-        print(row%10==0 ? " "^PAD : rpad(row%10,PAD) ,"│")
-        for col in 1:BOARD_SIZE
-            if all([(p.row == row) && (p.col == col) for p in game.players])
-                # @show game.players[1]
-                # print("B ")
-                print("½ ")
-            elseif (game.players[1].row == row && game.players[1].col == col)
-                print("1 ")
-            elseif (game.players[2].row == row && game.players[2].col == col)
-                print("2 ")
-            elseif game.board[row, col] == WALL
-                print("# ")
-            else
-                print(". ")
-            end
+
+    for row in 1:ACTUAL_BOARD_SIZE
+        if row%2==0
+            print(rpad(div(row,2),PAD),"│")
+        else
+            print(" "^PAD,"│")
         end
 
-        if row == BOARD_SIZE-1
+        for col in 1:ACTUAL_BOARD_SIZE
+            if col%2==0 # case possible wall
+                if game.board[row, col] == WALL
+                    print(wall_char)
+                else
+                    print("  ")
+                end
+            else
+                if game.board[row,col] == WALL print(wall_char)
+                elseif (game.players[1].row == row && game.players[1].col == col) print("1 ")
+                elseif (game.players[2].row == row && game.players[2].col == col) print("2 ")
+                elseif row%2==0 print("  ")
+                else print(". ") # dots ˙·.
+                end
+            end
+        end
+        if row == ACTUAL_BOARD_SIZE-1
             println("│ Player 1 ($(game.players[1].name)) Walls: ", game.players[1].walls)
-        elseif row == BOARD_SIZE
+        elseif row == ACTUAL_BOARD_SIZE
             println("│ Player 2 ($(game.players[2].name)) Walls: ", game.players[2].walls)
         else
             println("│")
         end
 
     end
-    println(" "^PAD,"└","──"^BOARD_SIZE,"┘")
+
+    println(" "^PAD,"└","─"^(PAD*size(game.board)[1]),"┘")
     # println("Player 1 ($(game.players[1].name)) Walls: ", game.players[1].walls, " Player 2 ($(game.players[2].name)) Walls: ", game.players[2].walls)
 end
 
@@ -126,9 +148,11 @@ function is_valid_dir(game::Game, direction::Char)
     end
     dr, dc = DIRECTIONS[direction]
     player = game.players[game.current_player]
-    new_row, new_col = player.row + dr, player.col + dc
-    if new_row >= 1 && new_row <= BOARD_SIZE && new_col >= 1 && new_col <= BOARD_SIZE
-        if game.board[new_row, new_col] == EMPTY
+    next_row, next_col = player.row + dr, player.col + dc
+    new_row, new_col = player.row + 2*dr, player.col + 2*dc
+
+    if new_row >= 1 && new_row <= ACTUAL_BOARD_SIZE && new_col >= 1 && new_col <= ACTUAL_BOARD_SIZE
+        if game.board[new_row, new_col] == EMPTY && game.board[next_row,next_col]==EMPTY
             return true
         else
             @info "Can't move there! there is a wall. Select a valid move."
@@ -141,25 +165,86 @@ function is_valid_dir(game::Game, direction::Char)
     return false
 end
 
+function is_free_cell(game::Game,row,col)
+    return 1<=row<=ACTUAL_BOARD_SIZE && 1<=col<=ACTUAL_BOARD_SIZE && game.board[row,col]==EMPTY
+end
+
 function move_pawn(game::Game, direction::Char)
     dr, dc = DIRECTIONS[direction]
     player = game.players[game.current_player]
-    new_row, new_col = player.row + dr, player.col + dc
+    opponent = game.players[3-game.current_player]
+    new_row, new_col = player.row + 2*dr, player.col + 2*dc
+    opp_row, opp_col = opponent.row, opponent.col
 
-    player.row, player.col = new_row, new_col
+    @show player.row, player.col
+
+    if new_row==opp_row && new_col==opp_col
+        @info "Jumping!"
+        # @show direction
+        # @show is_free_cell(game, player.row+4, player.col)
+        # @show player.row+4, player.col
+
+        if direction=='w' && is_free_cell(game, player.row-4, player.col) && is_free_cell(game, player.row-3, player.col)
+            player.row, player.col = player.row-4, player.col
+        elseif direction=='a' && is_free_cell(game, player.row, player.col-4) && is_free_cell(game, player.row, player.col-3)
+            player.row, player.col = player.row, player.col-4
+        elseif direction=='s' && is_free_cell(game, player.row+4, player.col) && is_free_cell(game, player.row+3, player.col)
+            player.row, player.col = player.row+4, player.col
+        elseif direction=='d' && is_free_cell(game, player.row, player.col+4) && is_free_cell(game, player.row, player.col+3)
+            player.row, player.col = player.row, player.col+4
+        else
+            if is_free_cell(game,player.row+2*dr, player.col+2*dc) && is_free_cell(game,player.row+2*dr, player.col+2*) 
+                println("Clarify (u/p) where to move among the possibilities: $direction-up or $direction-down: ")
+                clarification = ""
+                while clarification != "u" || clarification != "d"
+                    clarification = readline()
+                    if clarification=="u"
+                        player.row, player.col = player.row+2*dr-1, player.col+2*dr
+                        break
+                    elseif clarification=="d"
+                        player.row, player.col = player.row+2*dr+1, player.col+2*dr
+                        break
+                    else
+                        print("Just specify u or d: ")
+                    end
+                end
+            elseif is_free_cell(game,player.row+2*dr+1, player.col+2*dr)
+                player.row, player.col = player.row+2*dr+1, player.col+2*dr
+            elseif is_free_cell(game,player.row+2*dr-1, player.col+2*dr)
+                player.row, player.col = player.row+2*dr-1, player.col+2*dr
+            end
+        end
+    else
+        player.row, player.col = new_row, new_col
+    end
+    @show player.row, player.col
 end
 
-function is_valid_wall(game::Game, row::Int, col::Int)
-    if game.players[game.current_player].walls > 0
-        if row >= 1 && row <= BOARD_SIZE && col >= 1 && col <= BOARD_SIZE && 
-            game.board[row, col] == EMPTY &&
-            !((game.players[1].row == row) && (game.players[1].col == col)) &&
-            !((game.players[2].row == row) && (game.players[2].col == col))
-    
-            game.board[row, col] = WALL
+function is_valid_wall(game::Game, row::Int, col::Int,orientation::Char)
+    if game.players[game.current_player].walls <= 0
+        @info "Walls finished. Select a valid move."
+        return false
+    end
+    if !(orientation in ['h','v'])
+        @info "Wrong orientation."
+        return false
+    end
+    if row >= 1 && row <= BOARD_SIZE && col >= 1 && col <= BOARD_SIZE 
+        actual_row = row*2
+        actual_col = col*2
+
+        if orientation=='h' && game.board[actual_row, actual_col-1] == EMPTY && 
+            game.board[actual_row, actual_col] == EMPTY && 
+            game.board[actual_row, actual_col+1] == EMPTY
+
+            game.board[actual_row, actual_col-1] = WALL
+            game.board[actual_row, actual_col] = WALL
+            game.board[actual_row, actual_col+1] = WALL
             updated_board_pl1 = calculate_distance_matrix(game, 1)
             updated_board_pl2 = calculate_distance_matrix(game, 2)
-            game.board[row, col] = EMPTY
+            game.board[actual_row, actual_col-1] = EMPTY
+            game.board[actual_row, actual_col] = EMPTY
+            game.board[actual_row, actual_col+1] = EMPTY
 
             # pointwise comparison .==
             if all(updated_board_pl1[1,:] .== -1) || all(updated_board_pl2[BOARD_SIZE,:] .== -1)
@@ -168,19 +253,50 @@ function is_valid_wall(game::Game, row::Int, col::Int)
             else
                 return true
             end
-        else
-            @info "Wrong coordinates. Select a valid move."
-            return false
+
+        elseif orientation=='v' && game.board[actual_row-1, actual_col] == EMPTY && 
+            game.board[actual_row, actual_col] == EMPTY && 
+            game.board[actual_row+1, actual_col] == EMPTY
+
+            game.board[actual_row-1, actual_col] = WALL
+            game.board[actual_row, actual_col] = WALL
+            game.board[actual_row+1, actual_col] = WALL
+            updated_board_pl1 = calculate_distance_matrix(game, 1)
+            updated_board_pl2 = calculate_distance_matrix(game, 2)
+            game.board[actual_row-1, actual_col] = EMPTY
+            game.board[actual_row, actual_col] = EMPTY
+            game.board[actual_row+1, actual_col] = EMPTY
+
+            # pointwise comparison .==
+            if all(updated_board_pl1[1,:] .== -1) || all(updated_board_pl2[BOARD_SIZE,:] .== -1)
+                @info "Can't place a wall there. Would block the path for someone."
+                return false
+            else
+                return true
+            end
         end
     else
-        @info "Walls finished. Select a valid move."
+        @info "Wrong coordinates. Select a valid move."
         return false
     end
 end
 
-function place_wall(game::Game, row::Int, col::Int)
+function place_wall(game::Game, row::Int, col::Int,orientation::Char)
+    row = row*2
+    col = col*2
+
     game.players[game.current_player].walls -= 1
-    game.board[row, col] = WALL
+    if (orientation=='h')
+        game.board[row, col-1] = WALL
+        game.board[row, col] = WALL
+        game.board[row, col+1] = WALL
+        # game.board[row, col+2] = WALL
+    else
+        game.board[row-1, col] = WALL
+        game.board[row, col] = WALL
+        game.board[row+1, col] = WALL
+        # game.board[row+2, col] = WALL
+    end
 end
 
 
@@ -188,31 +304,39 @@ function switch_player(game::Game)
     game.current_player = 3 - game.current_player
 end
 
-function calculate_distance_matrix(game::Game, player_num::Int)
-    player = game.players[player_num]
-    player_pos = (player.row, player.col)
-    
-    distance = fill(-1, BOARD_SIZE, BOARD_SIZE)
-    visited = falses(BOARD_SIZE, BOARD_SIZE)
-    
-    queue = [(player_pos, 0)]
-    visited[player_pos...] = true
-    distance[player_pos...] = 0
-    
+function calculate_distance_matrix(game::Game, player_index::Int)
+    player = game.players[player_index]
+    distance_matrix = fill(-1, BOARD_SIZE, BOARD_SIZE)
+
+    queue = [(player.row, player.col)]
+    distance_matrix[div(player.row+1,2), div(player.col+1,2)] = 0
+
     while !isempty(queue)
-        (current_row, current_col), dist = popfirst!(queue)
-        neighbors = [(current_row + dr, current_col + dc) for (dr, dc) in values(DIRECTIONS)]
-        
-        for (next_row, next_col) in neighbors
-            if next_row in 1:BOARD_SIZE && next_col in 1:BOARD_SIZE && !visited[next_row, next_col] && game.board[next_row, next_col] != WALL
-                push!(queue, ((next_row, next_col), dist + 1))
-                visited[next_row, next_col] = true
-                distance[next_row, next_col] = dist + 1
+        # @show distance_matrix
+        # @show queue
+        current_row, current_col = popfirst!(queue)
+
+        for (dr, dc) in values(DIRECTIONS)
+            next_row = current_row + 2*dr
+            next_col = current_col + 2*dc
+            next_cell_row = current_row + dr
+            next_cell_col = current_col + dc
+
+            if 1<= next_row <= ACTUAL_BOARD_SIZE && 1<= next_col <= ACTUAL_BOARD_SIZE &&
+                1<= next_cell_row <= ACTUAL_BOARD_SIZE && 1<= next_cell_col <= ACTUAL_BOARD_SIZE &&
+                game.board[next_row, next_col] == EMPTY && 
+                game.board[next_cell_row, next_cell_col] == EMPTY && 
+                distance_matrix[div(current_row+2*dr+1,2), div(current_col+2*dc+1,2)] == -1
+
+                distance_matrix[div(current_row+2*dr+1,2), div(current_col+2*dc+1,2)] = distance_matrix[div(current_row+1,2), div(current_col+1,2)] + 1
+                push!(queue, (next_row, next_col))
             end
         end
     end
-    return distance
+
+    return distance_matrix
 end
+
 
 function print_distance_matrix(distance::Array{Int,2})
     for row in 1:BOARD_SIZE
@@ -230,8 +354,9 @@ function validate_move(game,input)
         args = split(input)
         try
             row, col = parse(Int, args[2]), parse(Int, args[3])
-            if is_valid_wall(game,row,col)==1
-                place_wall(game, row, col)
+            orientation = args[4][1]
+            if is_valid_wall(game,row,col,orientation)==1
+                place_wall(game, row, col,orientation)
                 moved = 1
             end
         catch e
@@ -268,64 +393,28 @@ function ask_user_move(game::Game)
     return input
 end
 
-
-##############
-##   AIs    ######################################################
-##############
-function rand_ai(game::Game)
-    return string(rand(keys(DIRECTIONS)))
-end
-
-function smart_ai(game::Game)
-    distance_matrix = calculate_distance_matrix(game, game.current_player)
-    if game.current_player==1 
-        target_row = 1
-
-        cur_pos = [game.players[game.current_player].row,game.players[game.current_player].col]
-        target_pos = [target_row,argmin(replace(distance_matrix[target_row,:],-1=>+Inf64))]
-
-        cur_pos[2]==target_pos[2] && is_valid_dir(game,'w') && return "w"
-        cur_pos[2]< target_pos[2] && is_valid_dir(game,'d') && return "d"
-        cur_pos[2]>=target_pos[2] && is_valid_dir(game,'a') && return "a"
-        return "s"
-    else 
-        target_row = BOARD_SIZE
-
-        cur_pos = [game.players[game.current_player].row,game.players[game.current_player].col]
-        target_pos = [target_row,argmin(replace(distance_matrix[target_row,:],-1=>+Inf64))]
-
-        cur_pos[2]==target_pos[2] && is_valid_dir(game,'s') && return "s"
-        cur_pos[2]< target_pos[2] && is_valid_dir(game,'d') && return "d"
-        cur_pos[2]>=target_pos[2] && is_valid_dir(game,'a') && return "a"
-        return "w"
-    end
-end
-##################
-##   end AIs    ######################################################
-##################
-
-ais_functions = [rand_ai,smart_ai]
+include("quoridor_ai.jl")
 
 function play()
     game = Game()
     gioca=1
+    turn = 1
     while gioca==1
-        println("Current board:")
+        println("Current board: (turn $turn)")
+        turn+=1
         print_board(game)
         # printstyled("Player ", game.current_player, " ($(game.players[game.current_player].name))";bold=true)
         # println("'s turn. Move (w/a/s/d) or place wall (e.g., 'wall x y'):")
 
-        println("Move (w/a/s/d) or place wall (e.g., 'wall x y').")
+        println("Move (w/a/s/d) or place wall (e.g., 'wall x y h/v').")
 
         distance_matrix = calculate_distance_matrix(game, game.current_player)
 
         if isdefined(Quoridor, :UnicodePlots)
-            println(heatmap(distance_matrix,array=true,colormap=:devon,
-                zlabel="Pl$(game.current_player) ($(game.players[game.current_player].name))"))
-        else
-            print_distance_matrix(distance_matrix)
+            println(heatmap(distance_matrix,array=true,colormap=:devon, zlabel="Pl$(game.current_player) ($(game.players[game.current_player].name))"))
         end
-
+        print_distance_matrix(distance_matrix)
+        
         moved = 0
         iter = 0
         while moved==0 && iter<100
@@ -349,7 +438,7 @@ function play()
             printstyled("\nPlayer 1 wins!\n", blink=true, bold=true)
             print_board(game)
             break
-        elseif game.current_player==2 && game.players[2].row == BOARD_SIZE
+        elseif game.current_player==2 && game.players[2].row == ACTUAL_BOARD_SIZE
             printstyled("\nPlayer 2 wins!\n", blink=true, bold=true)
             print_board(game)
             break
