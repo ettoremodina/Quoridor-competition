@@ -15,7 +15,7 @@ using TerminalMenus
 export Game, print_board, move_pawn, place_wall, switch_player, calculate_distance_matrix, print_distance_matrix, play # for testing everything
 # export play # real one
 
-const EMPTY, PAWN, WALL = 0, 1, 2
+const EMPTY, PL1, PL2, WALL = 0, 1, 2, 3
 wallh_str = "──" # "██"
 wallv_str = "│ " 
 
@@ -24,6 +24,17 @@ const DIRECTIONS = Dict('w' => (-1, 0), 'x' => (1, 0), 'a' => (0, -1), 'd' => (0
 const NORMAL_DIRECTIONS = Dict('w' => (-1, 0), 'x' => (1, 0), 'a' => (0, -1), 'd' => (0, 1))
 const SPECIAL_DIRECTIONS = Dict('q' => (-1, -1), 'c' => (1, 1), 'z' => (1, -1), 'e' => (-1, 1))
 
+function opposite_dir(dir::Char)
+    dir=='w' && return 'x'
+    dir=='x' && return 'w'
+    dir=='a' && return 'd'
+    dir=='d' && return 'a'
+
+    dir=='q' && return 'c'
+    dir=='e' && return 'z'
+    dir=='c' && return 'q'
+    dir=='z' && return 'e'
+end
 
 const MAX_WALLS = 10
 
@@ -39,6 +50,11 @@ mutable struct Player
     name::String
 end
 
+mutable struct Cell
+    row::Int
+    col::Int
+end
+
 mutable struct Game
     board::Array{Int,2}
     wall_board::Array{String,2}
@@ -50,8 +66,6 @@ function Game()
     choice_game = request("Choose game",
         RadioMenu(["1 vs 1","1 vs AI","AI vs 1","AI vs AI"], pagesize=4));
     global choice_game
-
-    ais = ["rand AI", "smart AI"]
 
     if choice_game==1 
         print("Player 1 name: ")
@@ -91,11 +105,19 @@ function Game()
     pl1_col = BOARD_SIZE%2==0 ? BOARD_SIZE+1 : BOARD_SIZE
     pl2_col = BOARD_SIZE%2==0 ? BOARD_SIZE-1 : BOARD_SIZE
 
-    board[ACTUAL_BOARD_SIZE, pl1_col] = PAWN
-    board[1, pl2_col] = PAWN
+    board[ACTUAL_BOARD_SIZE, pl1_col] = PL1
+    board[1, pl2_col] = PL2
     players = [Player(ACTUAL_BOARD_SIZE, pl1_col, MAX_WALLS,name1),
                Player(1, pl2_col, MAX_WALLS,name2)]
     return Game(board, wall_board, players, 1)
+end
+
+function Base.copy(game::Game)
+    board_copy = copy(game.board)
+    wall_board_copy = copy(game.wall_board)
+    players_copy = copy(game.players)
+    current_player_copy = copy(game.current_player)
+    return Game(board_copy, wall_board_copy, players_copy, current_player_copy)
 end
 
 is_inside(rowcol::Int) = 1 <= rowcol <= ACTUAL_BOARD_SIZE
@@ -104,6 +126,17 @@ is_inside(rowcol::Int) = 1 <= rowcol <= ACTUAL_BOARD_SIZE
 ##########################
 ##   Print functions    ##
 ##########################
+
+function print_matrix(matrix)
+    rows, cols = size(matrix)
+    for i in 1:rows
+        for j in 1:cols
+            print(rpad(matrix[i,j],3))
+        end
+        print("\n")
+    end
+    return nothing
+end
 
 function print_board_text(game::Game)
     for rr in 1:ACTUAL_BOARD_SIZE
@@ -176,7 +209,9 @@ end
 #####################
 
 
-function valid_directions(game::Game, row::Int, col::Int)
+function valid_directions(game::Game, row::Int, col::Int, player::Int)
+    opponent = player==1 ? 2 : 1
+    
     # players can only move on odd valued cells for row and cols
     # walls can only be on even valued cells for row and cols
 
@@ -196,26 +231,26 @@ function valid_directions(game::Game, row::Int, col::Int)
     # normal directions
     if (row==1) ||
         (row>=3 && game.board[row-1,col]==WALL) ||
-        (row==3 && game.board[row-2,col]==PAWN) ||
-        (row>=5 && game.board[row-2,col]==PAWN && game.board[row-3,col]==WALL)
+        (row==3 && game.board[row-2,col]==opponent) ||
+        (row>=5 && game.board[row-2,col]==opponent && game.board[row-3,col]==WALL)
         delete!(dirs,'w') end
 
     if (row==ACTUAL_BOARD_SIZE) ||
         (row<=ACTUAL_BOARD_SIZE-2 && game.board[row+1,col]==WALL) ||
-        (row==ACTUAL_BOARD_SIZE-2 && game.board[row+2,col]==PAWN) ||
-        (row<=ACTUAL_BOARD_SIZE-4 && game.board[row+2,col]==PAWN && game.board[row+3,col]==WALL)
+        (row==ACTUAL_BOARD_SIZE-2 && game.board[row+2,col]==opponent) ||
+        (row<=ACTUAL_BOARD_SIZE-4 && game.board[row+2,col]==opponent && game.board[row+3,col]==WALL)
         delete!(dirs,'x') end
 
     if (col==1) ||
         (col>=3 && game.board[row,col-1]==WALL) ||
-        (col==3 && game.board[row,col-2]==PAWN) ||
-        (col>=5 && game.board[row,col-2]==PAWN && game.board[row,col-3]==WALL)
+        (col==3 && game.board[row,col-2]==opponent) ||
+        (col>=5 && game.board[row,col-2]==opponent && game.board[row,col-3]==WALL)
         delete!(dirs,'a') end
 
     if (col==ACTUAL_BOARD_SIZE) ||
         (col<=ACTUAL_BOARD_SIZE-2 && game.board[row,col+1]==WALL) ||
-        (col==ACTUAL_BOARD_SIZE-2 && game.board[row,col+2]==PAWN) ||
-        (col<=ACTUAL_BOARD_SIZE-4 && game.board[row,col+2]==PAWN && game.board[row,col+3]==WALL) 
+        (col==ACTUAL_BOARD_SIZE-2 && game.board[row,col+2]==opponent) ||
+        (col<=ACTUAL_BOARD_SIZE-4 && game.board[row,col+2]==opponent && game.board[row,col+3]==WALL) 
         delete!(dirs,'d') end
 
     # special directions
@@ -226,36 +261,36 @@ function valid_directions(game::Game, row::Int, col::Int)
     if row==ACTUAL_BOARD_SIZE delete!(dirs,'z'); delete!(dirs,'c') end
 
     if !(row>=3 && col>=3 && (
-        (game.board[row-2,col]==PAWN && game.board[row-1,col]!=WALL && game.board[row-2,col-1]!=WALL &&
+        (game.board[row-2,col]==opponent && game.board[row-1,col]!=WALL && game.board[row-2,col-1]!=WALL &&
             (is_inside(row-3) ? game.board[row-3,col]==WALL : true)) || 
-        (game.board[row,col-2]==PAWN && game.board[row,col-1]!=WALL && game.board[row-1,col-2]!=WALL &&
+        (game.board[row,col-2]==opponent && game.board[row,col-1]!=WALL && game.board[row-1,col-2]!=WALL &&
             (is_inside(col-3) ? game.board[row,col-3]==WALL : true))
         ))
         delete!(dirs,'q')
     end
 
     if !(row>=3 && col<=ACTUAL_BOARD_SIZE-2 && (
-        (game.board[row-2,col]==PAWN && game.board[row-1,col]!=WALL && game.board[row-2,col+1]!=WALL &&
+        (game.board[row-2,col]==opponent && game.board[row-1,col]!=WALL && game.board[row-2,col+1]!=WALL &&
             (is_inside(row-3) ? game.board[row-3,col]==WALL : true)) || 
-        (game.board[row,col+2]==PAWN && game.board[row,col+1]!=WALL && game.board[row-1,col+2]!=WALL &&
+        (game.board[row,col+2]==opponent && game.board[row,col+1]!=WALL && game.board[row-1,col+2]!=WALL &&
             (is_inside(col+3) ? game.board[row,col+3]==WALL : true))
         ))
         delete!(dirs,'e')
     end
     
     if !(row<=ACTUAL_BOARD_SIZE-2 && col>=3 && (
-        (game.board[row+2,col]==PAWN && game.board[row+1,col]!=WALL && game.board[row+2,col-1]!=WALL &&
+        (game.board[row+2,col]==opponent && game.board[row+1,col]!=WALL && game.board[row+2,col-1]!=WALL &&
             (is_inside(row+3) ? game.board[row+3,col]==WALL : true)) ||
-        (game.board[row,col-2]==PAWN && game.board[row,col-1]!=WALL && game.board[row+1,col-2]!=WALL &&
+        (game.board[row,col-2]==opponent && game.board[row,col-1]!=WALL && game.board[row+1,col-2]!=WALL &&
             (is_inside(col-3) ? game.board[row,col-3]==WALL : true))
         ))
         delete!(dirs,'z')
     end
 
     if !(row<=ACTUAL_BOARD_SIZE-2 && col<=ACTUAL_BOARD_SIZE-2 && (
-        (game.board[row+2,col]==PAWN && game.board[row+1,col]!=WALL && game.board[row+2,col+1]!=WALL &&
+        (game.board[row+2,col]==opponent && game.board[row+1,col]!=WALL && game.board[row+2,col+1]!=WALL &&
             (is_inside(row+3) ? game.board[row+3,col]==WALL : true)) || 
-        (game.board[row,col+2]==PAWN && game.board[row,col+1]!=WALL && game.board[row+1,col+2]!=WALL &&
+        (game.board[row,col+2]==opponent && game.board[row,col+1]!=WALL && game.board[row+1,col+2]!=WALL &&
             (is_inside(col+3) ? game.board[row,col+3]==WALL : true))
         ))
         delete!(dirs,'c')
@@ -279,18 +314,18 @@ function move_pawn(game::Game, direction::Char)
         if direction in keys(NORMAL_DIRECTIONS)
             player.row = pl_row + 4*dr
             player.col = pl_col + 4*dc
-            game.board[pl_row + 4*dr, pl_col + 4*dc] = PAWN
+            game.board[pl_row + 4*dr, pl_col + 4*dc] = game.current_player
             # set to PAWN the pl current cell
         else
             player.row = pl_row + 2*dr
             player.col = pl_col + 2*dc
-            game.board[pl_row + 2*dr, pl_col + 2*dc] = PAWN
+            game.board[pl_row + 2*dr, pl_col + 2*dc] = game.current_player
             # set to PAWN the pl current cell
         end
     else
         player.row = pl_row + 2*dr
         player.col = pl_col + 2*dc
-        game.board[pl_row + 2*dr, pl_col + 2*dc] = PAWN
+        game.board[pl_row + 2*dr, pl_col + 2*dc] = game.current_player
         # set to PAWN the pl current cell
     end
 end
@@ -363,6 +398,28 @@ function is_valid_wall(game::Game, row::Int, col::Int,orientation::Char)
     return false
 end
 
+function matrix_to_board(rowcol::Int)
+    return rowcol*2-1
+end
+function board_to_matrix(rowcol::Int)
+    return div(rowcol+1,2)
+end
+
+function matrix_to_board_cell(cmatrix::Cell)
+    cboard = Cell(0,0)
+    cboard.row = cmatrix.row*2-1
+    cboard.col = cmatrix.col*2-1
+    return cboard
+end
+
+function board_to_matrix_cell(cboard::Cell)
+    cmatrix = Cell(0,0)
+    cmatrix.row = div(cboard.row+1,2)
+    cmatrix.col = div(cboard.col+1,2)
+    return cmatrix
+end
+
+
 function place_wall(game::Game, row::Int, col::Int, orientation::Char)
     row = row*2
     col = col*2
@@ -400,32 +457,45 @@ end
 
 function calculate_distance_matrix(game::Game, player_index::Int)
     player = game.players[player_index]
+    opponent = game.players[3-player_index]
     distance_matrix = fill(-1, BOARD_SIZE, BOARD_SIZE)
 
     queue = [(player.row, player.col)]
     distance_matrix[div(player.row+1,2), div(player.col+1,2)] = 0
 
     while !isempty(queue)
+        # print_matrix(distance_matrix)
         current_row, current_col = popfirst!(queue)
+        # println()
 
-        filt_dirs = valid_directions(game, current_row, current_col)
+        filt_dirs = valid_directions(game, current_row, current_col, game.current_player)
+        # @show filt_dirs
+
         for (dr, dc) in values(filt_dirs)
             next_row = current_row + 2*dr
             next_col = current_col + 2*dc
+            if opponent.row==next_row && opponent.col==next_col
+                next_row = current_row + 4*dr
+                next_col = current_col + 4*dc
+            end
             next_cell_row = current_row + dr
             next_cell_col = current_col + dc
 
             if 1<= next_row <= ACTUAL_BOARD_SIZE && 1<= next_col <= ACTUAL_BOARD_SIZE &&
                 1<= next_cell_row <= ACTUAL_BOARD_SIZE && 1<= next_cell_col <= ACTUAL_BOARD_SIZE &&
-                game.board[next_row, next_col] != WALL && 
+                game.board[next_row, next_col] != WALL &&  
                 game.board[next_cell_row, next_cell_col] != WALL && 
-                distance_matrix[div(current_row+2*dr+1,2), div(current_col+2*dc+1,2)] == -1
+                distance_matrix[div(next_row+1,2), div(next_col+1,2)] == -1
 
-                distance_matrix[div(current_row+2*dr+1,2), div(current_col+2*dc+1,2)] = distance_matrix[div(current_row+1,2), div(current_col+1,2)] + 1
-                push!(queue, (next_row, next_col))
+                distance_matrix[div(next_row+1,2), div(next_col+1,2)] = distance_matrix[div(current_row+1,2), div(current_col+1,2)] + 1
+
+                if (next_row, next_col) != (opponent.row, opponent.col)
+                    push!(queue, (next_row, next_col))
+                end
             end
         end
     end
+    distance_matrix[div(opponent.row+1,2), div(opponent.col+1,2)] = -1
     return distance_matrix
 end
 
@@ -513,7 +583,7 @@ function play()
         
         println("Move (with the keys around s) or place a wall (with 'wall x y h/v').")
         player = game.players[game.current_player]
-        valid_dirs = valid_directions(game, player.row, player.col)
+        valid_dirs = valid_directions(game, player.row, player.col, game.current_player)
         println("You (Pl$(game.current_player)) are currently in ($(player.row), $(player.col)) cell and the availble directions are $(keys(valid_dirs)).")
 
         moved = 0
