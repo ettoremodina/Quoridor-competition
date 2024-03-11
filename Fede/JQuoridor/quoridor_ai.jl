@@ -13,7 +13,7 @@ end
 ##############
 function rand_ai(game::Game)
     player = game.players[game.current_player]
-    valid_dirs = valid_directions(game, player.row, player.col)
+    valid_dirs = valid_directions(game, player.row, player.col, game.current_player)
     return string(rand(keys(valid_dirs)))
 end
 
@@ -48,7 +48,7 @@ function target_ai(game::Game)
         # best_move = collect(keys(valid_dirs))[1]
 
         iter = 0
-        while tpos_value>0 && iter<10
+        while tpos_value>0 && iter<30
             @show tpos_value
             valid_dirs_loop = valid_directions(game, matrix_to_board(target_pos.row), matrix_to_board(target_pos.col), 2)
             for (i,w) in valid_dirs_loop
