@@ -39,8 +39,8 @@ end
 const MAX_WALLS = 10
 
 print("Board size: ")
-const BOARD_SIZE = parse(Int64,readline())
-# const BOARD_SIZE = 9
+# const BOARD_SIZE = parse(Int64,readline())
+const BOARD_SIZE = 9
 const ACTUAL_BOARD_SIZE = BOARD_SIZE*2-1
 
 mutable struct Player
@@ -623,4 +623,4 @@ end
 end # module
 
 # To play, uncomment the next line and run this script
-# Quoridor.play()
+Quoridor.play()
